@@ -67,7 +67,8 @@ class Words(object):
                 result[1] += w
         return sorted(results, key=lambda res: res[1])
 
-    # TODO: method must return Word (class) list that appeared on a board after adding letter
+    # TODO: method must return Word (class) list that appeared on a board after
+    #  adding letter
     def _calc_move(self, coord):
         return []
 
