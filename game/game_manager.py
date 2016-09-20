@@ -1,5 +1,5 @@
 import time
-from game import game
+import game
 
 request_time_expiration = 120
 game_requests = {}
