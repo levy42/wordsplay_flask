@@ -1,0 +1,24 @@
+<div>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Player</th>
+            <th>Time</th>
+            <th>X</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="request in getRequests()">
+            <td>{{ request.player }}</td>
+            <td>{{ request.time }}</td>
+            <td><p>Apply</p></td>
+        </tbody>
+    </table>
+    <select ng-model="moveTime" class="form-control" id="timeSelect" title="Move time">
+        <option value="" selected disabled>Move time</option>
+        <option>30</option>
+        <option>60</option>
+        <option>90</option>
+    </select>
+    <button class="btn btn-success" ng-click="addRequest()">Add me!</button>
+</div>

@@ -1,17 +1,25 @@
 import time
 import game
 
-request_time_expiration = 120
-game_requests = {}
-move_time_cases = [120, 60, 45, 30, 15]
-games = {}
-
 
 class GameRequest(object):
     def __init__(self, user, move_time):
         self.user = user
         self.move_time = move_time
         self.created_at = time.time()
+
+    def to_dict(self):
+        return {'user': self.user, 'move_time': self.move_time}
+
+    def __str__(self):
+        return str(self.to_dict())
+
+
+request_time_expiration = 120
+test_r = GameRequest("rgg", 60)
+game_requests = {"rgg": test_r}
+move_time_cases = [120, 60, 45, 30, 15]
+games = {}
 
 
 def create_game_request(user, move_time):
@@ -30,6 +38,7 @@ def get_game_requests():
 def start_game(user1, user2):
     new_game = game.Words([user1, user2], 5, 'ua')
     return new_game
+
 
 def move():
     pass

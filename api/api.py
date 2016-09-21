@@ -48,19 +48,21 @@ def auth_required(func):
 @api.route("/game/requests")
 @auth_required
 def game_requests():
-    return str(gm.game_requests)
+    return str([])
 
 
 @api.route("/game/create/<move_time>")
 @auth_required
 def create_request(move_time):
-    return gm.create_game_request(get_user(), move_time)
+    gm.create_game_request(get_user(), move_time)
+    return "OK"
 
 
 @api.route("/game/cencel")
 @auth_required
 def cencel_request():
-    return gm.cencel_game_request(get_user())
+    gm.cencel_game_request(get_user())
+    return "OK"
 
 
 @api.route("/game/apply/<user>")
@@ -79,12 +81,11 @@ def get_game(id):
 @api.route("/start/<name>")
 def start(name):
     clean_sessions()
-    r = make_response()
+    r = make_response(open('templates/index.html').read())
     if not request.cookies.get("token"):
         token = generate_token()
         r.headers['Set-Cookie'] = 'token=%s; path=/' % token
         users[token] = name
     else:
         users[request.cookies.get("token")] = name
-    r.data = 'Well come'
     return r
