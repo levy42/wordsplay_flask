@@ -8,12 +8,6 @@ class GameRequest(object):
         self.move_time = move_time
         self.created_at = time.time()
 
-    def to_dict(self):
-        return {'user': self.user, 'move_time': self.move_time}
-
-    def __str__(self):
-        return str(self.to_dict())
-
 
 request_time_expiration = 120
 test_r = GameRequest("rgg", 60)
@@ -25,6 +19,7 @@ games = {}
 def create_game_request(user, move_time):
     game_request = GameRequest(user, move_time)
     game_requests[user] = game_request
+    return game_request
 
 
 def cencel_game_request(user):

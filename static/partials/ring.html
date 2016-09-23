@@ -8,13 +8,20 @@
         </tr>
         </thead>
         <tbody>
-        <tr ng-repeat="request in getRequests()">
-            <td>{{ request.player }}</td>
-            <td>{{ request.time }}</td>
-            <td><p>Apply</p></td>
+        <tr ng-show="requests.length > 1">
+            <td>{{ requests[0].user }}</td>
+            <td>{{ requests[0].move_time }}</td>
+            <td><p class="btn btn-danger" ng-click="cencelRequest()">Cencel</p></td>
+        </tr>
+        <tr ng-repeat="request in requests.slice(1, requests.length)">
+            <td>{{ request.user }}</td>
+            <td>{{ request.move_time }}</td>
+            <td><p class="btn btn-success">Apply</p>
+            </td>
         </tbody>
     </table>
-    <select ng-model="moveTime" class="form-control" id="timeSelect" title="Move time">
+    <select class="form-control" id="timeSelect" title="Move time"
+            ng-model="moveTime">
         <option value="" selected disabled>Move time</option>
         <option>30</option>
         <option>60</option>

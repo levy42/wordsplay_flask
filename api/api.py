@@ -2,6 +2,7 @@ import os
 import binascii
 import time
 from functools import wraps
+import json
 
 from flask import Blueprint
 from flask import request
@@ -48,14 +49,15 @@ def auth_required(func):
 @api.route("/game/requests")
 @auth_required
 def game_requests():
-    return str([])
+    obj_list = [x.__dict__ for x in gm.get_game_requests().values()]
+    return json.dumps(obj_list)
 
 
 @api.route("/game/create/<move_time>")
 @auth_required
 def create_request(move_time):
-    gm.create_game_request(get_user(), move_time)
-    return "OK"
+    r = gm.create_game_request(get_user(), move_time)
+    return json.dumps(r.__dict__)
 
 
 @api.route("/game/cencel")
@@ -81,11 +83,20 @@ def get_game(id):
 @api.route("/start/<name>")
 def start(name):
     clean_sessions()
+    if name in users.values():
+        return "Name is used", 201
     r = make_response(open('templates/index.html').read())
     if not request.cookies.get("token"):
         token = generate_token()
         r.headers['Set-Cookie'] = 'token=%s; path=/' % token
+        r.headers['User'] = name
         users[token] = name
     else:
         users[request.cookies.get("token")] = name
     return r
+
+
+@api.route("/quit")
+@auth_required
+def quit():
+    del users[request.cookies.get("token")]

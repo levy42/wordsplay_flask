@@ -8,13 +8,9 @@ var app = angular.module('App', ['AppServices'])
 			templateUrl: 'static/partials/ring.html',
 			controller: IndexController
 		})
-		.when('/game', {
-			templateUrl: 'static/partials/about.html',
-			controller: AboutController
-		})
 		.when('/ring', {
 			templateUrl: 'static/partials/ring.html',
-			controller: PostListController
+			controller: IndexController
 		})
 		.otherwise({
 			redirectTo: '/'

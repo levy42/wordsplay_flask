@@ -8,9 +8,15 @@ angular.module('AppServices', ['ngResource'])
                     return response.data;
                 })
             },
-            addRequest: function () {
-                var time = document.getElementsById("moveTime").value;
-                return $http.get("/game/create/" + time)
+            addRequest: function (moveTime) {
+                return $http.get("/game/create/" + moveTime).then(function (responce) {
+                    return responce.data
+                });
+            },
+            cencelRequest: function () {
+                return $http.get("/game/cencel").then(function (responce) {
+                    return responce.status == 200
+                });
             }
         }
     }])

@@ -3,23 +3,24 @@
 /* Controllers */
 
 function IndexController($scope, GameService) {
-	$scope.getRequests = GameService.getRequests().then(function (requests) {
-		$scope.requests = requests;
-	});
-}
+    $scope.requests = [];
+    $scope.me = 
+    $scope.getRequests = function () {
+        GameService.getRequests().then(function (requests) {
+            $scope.requests = requests;
+        });
+    };
 
-function AboutController($scope) {
-	
-}
+    $scope.getRequests();
 
-function PostListController($scope, Post) {
-	var postsQuery = Post.get({}, function(posts) {
-		$scope.posts = posts.objects;
-	});
-}
-
-function PostDetailController($scope, $routeParams, Post) {
-	var postQuery = Post.get({ postId: $routeParams.postId }, function(post) {
-		$scope.post = post;
-	});
+    $scope.addRequest = function () {
+        GameService.addRequest($scope.moveTime).then(function (request) {
+            $scope.requests.push(request)
+        });
+    };
+    $scope.cencelRequest = function () {
+        GameService.cencelRequest().then(function (result) {
+            if (result) delete $scope.requests[0]
+        })
+    }
 }
