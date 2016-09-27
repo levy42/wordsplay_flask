@@ -34,7 +34,7 @@
 
 .main {
 	padding-top: 20px;
-	min-height: 370px;
+	min-height: 570px;
 }
 
 .footer-left {
@@ -48,4 +48,27 @@
 .flashes {
 	list-style-type: none;
 	margin-left: 0;
+}
+
+.block {
+	height: 100px;
+	width: 100px;
+	text-align: center;
+}
+
+.game-table td {
+	text-align: center;
+	border: dashed;
+	height: 50px;
+	width: 50px;
+}
+
+.game-table {
+	height: 300px;
+	width: 300px;
+}
+
+.country-icon {
+	background: url("/resuorces/");
+
 }

@@ -8,15 +8,25 @@ angular.module('AppServices', ['ngResource'])
                     return response.data;
                 })
             },
-            addRequest: function (moveTime) {
-                return $http.get("/game/create/" + moveTime).then(function (responce) {
-                    return responce.data
+            addRequest: function (moveTime, language) {
+                return $http.get("/game/create/" + moveTime + "/" + language).then(function (response) {
+                    return response.data
                 });
             },
             cencelRequest: function () {
-                return $http.get("/game/cencel").then(function (responce) {
-                    return responce.status == 200
+                return $http.get("/game/cencel").then(function (response) {
+                    return response.status == 200
                 });
+            },
+            applyRequest: function (player) {
+                return $http.get("/game/apply/" + player).then(function (response) {
+                    return response.status == 200
+                });
+            },
+            gameConfigs: function (player) {
+                return $http.get("/game/configs").then(function (response) {
+                    return response.data
+                })
             }
         }
     }])

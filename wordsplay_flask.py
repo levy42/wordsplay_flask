@@ -16,6 +16,8 @@ def start():
 
 
 @app.route('/')
+@app.route('/ring')
+@app.route('/game')
 def home():
     return render_template('index.html')
 

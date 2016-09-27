@@ -49,14 +49,21 @@ def auth_required(func):
 @api.route("/game/requests")
 @auth_required
 def game_requests():
-    obj_list = [x.__dict__ for x in gm.get_game_requests().values()]
+    obj_list = []
+    user = get_user()
+    for x in gm.get_game_requests().values():
+        dict = x.__dict__
+        if x.user == user:
+            dict['my'] = True
+        obj_list.append(dict)
+
     return json.dumps(obj_list)
 
 
-@api.route("/game/create/<move_time>")
+@api.route("/game/create/<move_time>/<language>")
 @auth_required
-def create_request(move_time):
-    r = gm.create_game_request(get_user(), move_time)
+def create_request(move_time, language):
+    r = gm.create_game_request(get_user(), move_time, language)
     return json.dumps(r.__dict__)
 
 
@@ -70,7 +77,7 @@ def cencel_request():
 @api.route("/game/apply/<user>")
 @auth_required
 def apply_game(user):
-    return gm.apply_request(get_user(), user)
+    return str(gm.apply_request(get_user(), user))
 
 
 @api.route("/game/<id>")
@@ -78,6 +85,17 @@ def apply_game(user):
 def get_game(id):
     g = Game.query.get(id)
     return str(g)
+
+
+@api.route("/game/<id>/move/<index>/<char>")
+@auth_required
+def move(id, index, char):
+    gm.move(id, index, char)
+
+
+@api.route("/game/<id>")
+def surrender(id):
+    gm.surrender(id)
 
 
 @api.route("/start/<name>")
@@ -100,3 +118,10 @@ def start(name):
 @auth_required
 def quit():
     del users[request.cookies.get("token")]
+    r = make_response(open('templates/start.html').read())
+    return r
+
+
+@api.route("/game/configs")
+def game_configs():
+    return json.dumps(gm.game_configs())

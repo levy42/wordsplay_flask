@@ -4,28 +4,39 @@
         <tr>
             <th>Player</th>
             <th>Time</th>
+            <th>Language</th>
             <th>X</th>
         </tr>
         </thead>
         <tbody>
-        <tr ng-show="requests.length > 1">
-            <td>{{ requests[0].user }}</td>
-            <td>{{ requests[0].move_time }}</td>
-            <td><p class="btn btn-danger" ng-click="cencelRequest()">Cencel</p></td>
-        </tr>
-        <tr ng-repeat="request in requests.slice(1, requests.length)">
+        <tr ng-repeat="request in requests">
             <td>{{ request.user }}</td>
             <td>{{ request.move_time }}</td>
-            <td><p class="btn btn-success">Apply</p>
+            <td>{{ request.language }}</td>
+            <td ng-hide="request.my==true">
+                <p class="btn btn-success"
+                   ng-click="applyRequest(request.user)">Apply</p>
+            </td>
+            <td ng-show="request.my==true">
+                <p class="btn btn-danger" ng-click="cencelRequest()">Cencel</p>
             </td>
         </tbody>
     </table>
-    <select class="form-control" id="timeSelect" title="Move time"
-            ng-model="moveTime">
-        <option value="" selected disabled>Move time</option>
-        <option>30</option>
-        <option>60</option>
-        <option>90</option>
-    </select>
-    <button class="btn btn-success" ng-click="addRequest()">Add me!</button>
+    <div>
+        <button class="btn btn-success" ng-disabled="myRequest"
+                ng-click="addRequest()">Add me!
+        </button>
+        <select class="form-control" title="Move time"
+                ng-model="moveTime">
+            <option value="" selected disabled>{{ timeValues[0] }} sec</option>
+            <option ng-repeat="opt in timeValues.slice(1,timeValues.length)">{{ opt }}
+                sec
+            </option>
+        </select>
+        <select class="form-control" title="Move time"
+                ng-model="language">
+            <option value="" selected disabled>{{ languages[0] }}</option>
+            <option ng-repeat="lan in languages.slice(1, languages.length)">{{ lan }}<span s></span></option>
+        </select>
+    </div>
 </div>
