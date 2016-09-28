@@ -11,8 +11,8 @@
         <tbody>
         <tr ng-repeat="request in requests">
             <td>{{ request.user }}</td>
-            <td>{{ request.move_time }}</td>
-            <td>{{ request.language }}</td>
+            <td>{{ request.move_time }} sec</td>
+            <td><span class="flag flag-{{ request.language }}"></span></td>
             <td ng-hide="request.my==true">
                 <p class="btn btn-success"
                    ng-click="applyRequest(request.user)">Apply</p>
@@ -22,21 +22,20 @@
             </td>
         </tbody>
     </table>
-    <div>
+    <div class="form-inline">
         <button class="btn btn-success" ng-disabled="myRequest"
                 ng-click="addRequest()">Add me!
         </button>
         <select class="form-control" title="Move time"
                 ng-model="moveTime">
-            <option value="" selected disabled>{{ timeValues[0] }} sec</option>
-            <option ng-repeat="opt in timeValues.slice(1,timeValues.length)">{{ opt }}
-                sec
-            </option>
+            <option value="" selected disabled>{{ timeValues[0] }}</option>
+            <option ng-repeat="opt in timeValues.slice(1,timeValues.length)">{{ opt }}</option>
         </select>
         <select class="form-control" title="Move time"
                 ng-model="language">
             <option value="" selected disabled>{{ languages[0] }}</option>
-            <option ng-repeat="lan in languages.slice(1, languages.length)">{{ lan }}<span s></span></option>
+            <option ng-repeat="lan in languages.slice(1, languages.length)">{{ lan }}<span
+                    class="flag flag-{{ lan }}"></span></option>
         </select>
     </div>
 </div>
