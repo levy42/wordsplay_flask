@@ -26,6 +26,10 @@ var app = angular.module('App', ['AppServices', 'Auth'])
                     templateUrl: 'static/partials/register.html',
                     controller: AuthController
                 })
+                 .when('/logout', {
+                    templateUrl: 'static/partials/logout.html',
+                    controller: AuthController
+                })
                 .otherwise({
                     redirectTo: '/'
                 })

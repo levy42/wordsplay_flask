@@ -2,12 +2,20 @@
 
 /* Controllers */
 
-function IndexController($scope, GameService) {
+function IndexController($scope, GameService, AuthService) {
     $scope.requests = [];
     $scope.myRequest = null;
     $scope.timeValues = [];
     $scope.languages = [];
-    $scope.loggedIn = false;
+    $scope.loggedIn = true;
+    $scope.a = "Qregqeg";
+
+    $scope.getStatus = function () {
+        AuthService.status().then(function (status) {
+            $scope.loggedIn = status
+        });
+    };
+
     $scope.getRequests = function () {
         GameService.getRequests().then(function (requests) {
             $scope.requests = requests;
@@ -26,7 +34,7 @@ function IndexController($scope, GameService) {
             $scope.moveTime = $scope.timeValues[0];
         });
     };
-
+    $scope.getStatus();
     $scope.getGameConfigs();
     $scope.getRequests();
 
@@ -70,22 +78,45 @@ function GameController($scope, GameService) {
     ];
 }
 
-function AuthController($scope, AuthService) {
-    $scope.loginError = null;
+function AuthController($scope, $location, AuthService) {
+
+    $scope.getStatus = function () {
+        AuthService.status().then(function (status) {
+            $scope.loggedIn = status
+        });
+    };
+    $scope.getStatus();
     $scope.login = function () {
-        AuthService.login().then(function (result) {
-            if (result) $scope.loggedIn = true;
+        AuthService.login($scope.username, $scope.password).then(function (result) {
+            if (result) {
+                $scope.loggedIn = true;
+                $scope.loginError = null;
+                window.location = "/";
+            }
             else {
                 $scope.loggedIn = false;
-                $scope.loginError = result
+                $scope.loginError = true;
+            }
+        });
+    };
+
+    $scope.register = function () {
+        AuthService.register($scope.username, $scope.password).then(function (result) {
+            if (result == true) {
+                 window.location = "/"
+            }
+            else {
+                $scope.registerError = result;
             }
         });
     };
     $scope.logout = function () {
         AuthService.logout().then(function (result) {
-            if (result) $scope.loggedIn = false;
-            else $scope.loggedIn = false;
+            if (result == "success") {
+                $scope.loggedIn = false;
+                window.location = "/"
+            }
+            else $scope.loggedIn = true;
         });
-        $modalInstance.close();
     };
 }

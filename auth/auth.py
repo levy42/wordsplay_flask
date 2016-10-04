@@ -1,6 +1,7 @@
 # project/__init__.py
 
 import os
+import uuid
 from functools import wraps
 import binascii
 from flask import request, jsonify, session, Blueprint, g
@@ -113,6 +114,7 @@ def login():
         session['logged_in'] = True
         session['token'] = generate_token()
         session['username'] = user.username
+        session['user_id'] = user.id
         status = True
     else:
         status = False
@@ -122,6 +124,9 @@ def login():
 @auth.route('/logout')
 def logout():
     session.pop('logged_in', None)
+    session.pop('user_id', None)
+    session.pop('username', None)
+    session.pop('token', None)
     return jsonify({'result': 'success'})
 
 
@@ -149,4 +154,4 @@ def login_required(func):
 
 
 def generate_token():
-    return (binascii.hexlify(os.urandom(40)))
+    return str(uuid.uuid4())

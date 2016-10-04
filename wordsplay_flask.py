@@ -4,6 +4,7 @@ from api import api
 from auth import auth
 from db import models
 from auth import auth
+from api import socket
 
 app = Flask(__name__)
 app.config.from_pyfile('conf.cfg')
@@ -13,7 +14,8 @@ auth_bp = auth.auth
 auth.init_app(app)
 app.register_blueprint(auth_bp, url_prefix='/auth')
 app.register_blueprint(api.api)
-app.register_blueprint(auth.auth)
+game_socket = socket.socketio
+game_socket.init_app(app)
 
 
 @app.route('/')
@@ -21,6 +23,7 @@ app.register_blueprint(auth.auth)
 @app.route('/game')
 @app.route('/login', methods=['GET'])
 @app.route('/register', methods=['GET'])
+@app.route('/logout', methods=['GET'])
 def home():
     return render_template('index.html')
 

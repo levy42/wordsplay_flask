@@ -1,6 +1,6 @@
 import json
 
-from flask import Blueprint, session, g
+from flask import Blueprint, session, g, jsonify
 from game import game_manager as gm
 from db.models import Game
 from auth.auth import before_request as auth_context
@@ -15,8 +15,6 @@ def before_request():
 
 @api.route("/game/requests")
 def game_requests():
-    print(session.__dict__)
-    print(session.get('token'))
     obj_list = []
     for x in gm.get_game_requests().values():
         dict = x.__dict__
@@ -24,13 +22,13 @@ def game_requests():
             dict['my'] = True
         obj_list.append(dict)
 
-    return json.dumps(obj_list)
+    return jsonify(obj_list)
 
 
 @api.route("/game/create/<move_time>/<language>")
 def create_request(move_time, language):
     r = gm.create_game_request(g.user_id, g.username, move_time, language)
-    return json.dumps(r.__dict__)
+    return jsonify(r.__dict__)
 
 
 @api.route("/game/cencel")
@@ -62,4 +60,4 @@ def surrender(id):
 
 @api.route("/game/configs")
 def game_configs():
-    return json.dumps(gm.game_configs())
+    return jsonify(gm.game_configs())

@@ -42,12 +42,13 @@ angular.module('Auth', ['ngResource'])
                     password: password
                 };
                 return $http.post("/auth/login", data).then(function (response) {
-                    return response.data;
+                    if (response.data.result == true) return true;
+                    else return response.data.result
                 })
             },
-            loguot: function () {
-                return $http.get("/auth/ogout").then(function (response) {
-                    return response.data
+            logout: function () {
+                return $http.get("/auth/logout").then(function (response) {
+                    return response.data.result
                 });
             },
             register: function (username, password) {
@@ -56,8 +57,14 @@ angular.module('Auth', ['ngResource'])
                     password: password
                 };
                 return $http.post("/auth/register", data).then(function (response) {
-                    return response.status == 200
+                    if (response.data.result == "success") return true;
+                    else return response.data.result
                 });
+            },
+            status: function () {
+                return $http.get("/auth/status").then(function (response) {
+                    return response.data.status
+                })
             }
         }
     }]);
