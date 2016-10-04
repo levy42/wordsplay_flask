@@ -1,134 +1,152 @@
-from flask import Flask, render_template, request, g, session, flash, \
-    redirect, url_for, abort
-from flask_openid import OpenID
+# project/__init__.py
 
-from openid.extensions import pape
-from flask import Blueprint
-from db.models import db, User
+import os
+from functools import wraps
+import binascii
+from flask import request, jsonify, session, Blueprint, g
+import datetime
+from flask.ext.bcrypt import Bcrypt
+from db.models import db
 
-auth = None
+# config
 
-# setup flask-openid
-oid = OpenID(auth, safe_roots=[], extension_responses=[pape.Response])
 auth = Blueprint('auth', __name__)
+app = None
+bcrypt = None
 
 
-def init_auth(current_auth):
-    global auth
-    auth = current_auth
+class User(db.Model):
+    __tablename__ = "users"
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    username = db.Column(db.String(255), unique=True, nullable=False)
+    password = db.Column(db.String(255), nullable=False)
+    registered_on = db.Column(db.DateTime, nullable=False)
+    admin = db.Column(db.Boolean, nullable=False, default=False)
+
+    def __init__(self, username, password, admin=False):
+        self.username = username
+        self.password = bcrypt.generate_password_hash(password)
+        self.registered_on = datetime.datetime.now()
+        self.admin = admin
+
+    def is_authenticated(self):
+        return True
+
+    def is_active(self):
+        return True
+
+    def is_anonymous(self):
+        return False
+
+    def get_id(self):
+        return self.id
+
+    def __repr__(self):
+        return '<User {0}>'.format(self.email)
+
+
+def init_app(current_app):
+    global app
+    global bcrypt
+    app = current_app
+    bcrypt = Bcrypt(app)
+
+
+def get_user(id):
+    pass
 
 
 @auth.before_request
 def before_request():
-    g.user = None
-    if 'openid' in session:
-        g.user = User.query.filter_by(openid=session['openid']).first()
+    if not (session.get('token') and session.get('user_id')):
+        token = generate_token()
+        session['token'] = token
+        session['user_id'] = token
+        session['username'] = 'Anonymous'
+        g.user_id = token
+    else:
+        g.user_id = session.get('user_id')
+        g.username = session.get('username')
 
 
-@auth.after_request
-def after_request(response):
-    db.session.remove()
-    return response
+def auth_context(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        if not session.get('token'):
+            token = generate_token()
+            session['token'] = token
+            session['user_id'] = token
+            session['username'] = 'Anonymous'
+            g.user_id = token
+        else:
+            g.user_id = session.get('user_id')
+            g.username = session.get('username')
+        return func(*args, **kwargs)
+
+    return wrapper
 
 
-@auth.route('/')
-def index():
-    return render_template('index.html')
+@auth.route('/register', methods=['POST'])
+def register():
+    json_data = request.json or request.form
+    user = User(
+            username=json_data['username'],
+            password=json_data['password']
+    )
+    try:
+        db.session.add(user)
+        db.session.commit()
+        status = 'success'
+    except:
+        status = 'this user is already registered'
+    db.session.close()
+    return jsonify({'result': status})
 
 
-@auth.route('/login', methods=['GET', 'POST'])
-@oid.loginhandler
+@auth.route('/login', methods=['POST'])
 def login():
-    """Does the login via OpenID.  Has to call into `oid.try_login`
-    to start the OpenID machinery.
-    """
-    # if we are already logged in, go back to were we came from
-    if g.user is not None:
-        return redirect(oid.get_next_url())
-    if request.method == 'POST':
-        openid = request.form.get('openid')
-        if openid:
-            pape_req = pape.Request([])
-            return oid.try_login(openid, ask_for=['email', 'nickname'],
-                                 ask_for_optional=['fullname'],
-                                 extensions=[pape_req])
-    return render_template('login.html', next=oid.get_next_url(),
-                           error=oid.fetch_error())
-
-
-@oid.after_login
-def create_or_login(resp):
-    """This is called when login with OpenID succeeded and it's not
-    necessary to figure out if this is the users's first login or not.
-    This function has to redirect otherwise the user will be presented
-    with a terrible URL which we certainly don't want.
-    """
-    session['openid'] = resp.identity_url
-    if 'pape' in resp.extensions:
-        pape_resp = resp.extensions['pape']
-        session['auth_time'] = pape_resp.auth_time
-    user = User.query.filter_by(openid=resp.identity_url).first()
-    if user is not None:
-        flash(u'Successfully signed in')
-        g.user = user
-        return redirect(oid.get_next_url())
-    return redirect(url_for('create_profile', next=oid.get_next_url(),
-                            name=resp.fullname or resp.nickname,
-                            email=resp.email))
-
-
-@auth.route('/create-profile', methods=['GET', 'POST'])
-def create_profile():
-    """If this is the user's first login, the create_or_login function
-    will redirect here so that the user can set up his profile.
-    """
-    if g.user is not None or 'openid' not in session:
-        return redirect(url_for('index'))
-    if request.method == 'POST':
-        name = request.form['name']
-        email = request.form['email']
-        if not name:
-            flash(u'Error: you have to provide a name')
-        elif '@' not in email:
-            flash(u'Error: you have to enter a valid email address')
-        else:
-            flash(u'Profile successfully created')
-            db.session.add(User(name, email, session['openid'], True))
-            db.session.commit()
-            return redirect(oid.get_next_url())
-    return render_template('create_profile.html', next_url=oid.get_next_url())
-
-
-@auth.route('/profile', methods=['GET', 'POST'])
-def edit_profile():
-    """Updates a profile"""
-    if g.user is None:
-        abort(401)
-    form = dict(name=g.user.name, email=g.user.email)
-    if request.method == 'POST':
-        if 'delete' in request.form:
-            db.session.delete(g.user)
-            db.session.commit()
-            session['openid'] = None
-            flash(u'Profile deleted')
-            return redirect(url_for('index'))
-        form['name'] = request.form['name']
-        form['email'] = request.form['email']
-        if not form['name']:
-            flash(u'Error: you have to provide a name')
-        elif '@' not in form['email']:
-            flash(u'Error: you have to enter a valid email address')
-        else:
-            flash(u'Profile successfully created')
-            g.user.name = form['name']
-            g.user.email = form['email']
-            db.session.commit()
-            return redirect(url_for('edit_profile'))
-    return render_template('edit_profile.html', form=form)
+    json_data = request.json or request.form
+    user = User.query.filter_by(username=json_data['username']).first()
+    if user and bcrypt.check_password_hash(
+            user.password, json_data['password']):
+        session['logged_in'] = True
+        session['token'] = generate_token()
+        session['username'] = user.username
+        status = True
+    else:
+        status = False
+    return jsonify({'result': status})
 
 
 @auth.route('/logout')
 def logout():
-    session.pop('openid', None)
-    flash(u'You have been signed out')
-    return redirect(oid.get_next_url())
+    session.pop('logged_in', None)
+    return jsonify({'result': 'success'})
+
+
+@auth.route('/status')
+def status():
+    if session.get('logged_in'):
+        if session['logged_in']:
+            return jsonify({'status': True})
+    else:
+        return jsonify({'status': False})
+
+
+def login_required(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        user_id = session.get("user_id")
+        if not user_id:
+            raise Exception("Login required")
+        user = User.query.get(user_id)
+        if not user:
+            raise Exception("Login required")
+        return func(*args, **kwargs)
+
+    return wrapper
+
+
+def generate_token():
+    return (binascii.hexlify(os.urandom(40)))

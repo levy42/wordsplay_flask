@@ -10,7 +10,7 @@
         </thead>
         <tbody>
         <tr ng-repeat="request in requests">
-            <td>{{ request.user }}</td>
+            <td>{{ request.username }}</td>
             <td>{{ request.move_time }} sec</td>
             <td><span class="flag flag-{{ request.language }}"></span></td>
             <td ng-hide="request.my==true">
@@ -29,13 +29,13 @@
         <select class="form-control" title="Move time"
                 ng-model="moveTime">
             <option value="" selected disabled>{{ timeValues[0] }}</option>
-            <option ng-repeat="opt in timeValues.slice(1,timeValues.length)">{{ opt }}</option>
+            <option ng-repeat="opt in timeValues">{{ opt }}</option>
         </select>
         <select class="form-control" title="Move time"
                 ng-model="language">
-            <option value="" selected disabled>{{ languages[0] }}</option>
-            <option ng-repeat="lan in languages.slice(1, languages.length)">{{ lan }}<span
+            <option ng-repeat="lan in languages">{{ lan }}<span
                     class="flag flag-{{ lan }}"></span></option>
         </select>
+        <button class="btn btn-success" ng-click="getRequests()">refresh</button>
     </div>
 </div>

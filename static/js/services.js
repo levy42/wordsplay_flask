@@ -33,4 +33,32 @@ angular.module('AppServices', ['ngResource'])
 ;
 
 
+angular.module('Auth', ['ngResource'])
+    .factory('AuthService', ["$http", function ($http) {
+        return {
+            login: function (username, password) {
+                var data = {
+                    username: username,
+                    password: password
+                };
+                return $http.post("/auth/login", data).then(function (response) {
+                    return response.data;
+                })
+            },
+            loguot: function () {
+                return $http.get("/auth/ogout").then(function (response) {
+                    return response.data
+                });
+            },
+            register: function (username, password) {
+                var data = {
+                    username: username,
+                    password: password
+                };
+                return $http.post("/auth/register", data).then(function (response) {
+                    return response.status == 200
+                });
+            }
+        }
+    }]);
 

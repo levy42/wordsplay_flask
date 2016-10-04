@@ -5,8 +5,7 @@
     <title>WordsPlay</title>
     <link rel="stylesheet" href="/static/css/bootstrap.css">
     <link rel="stylesheet" href="/static/css/main.css">
-    <link rel ="stylesheet" href="/static/css/flags.css">
-    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.11.2/css/bootstrap-select.min.css">
+    <link rel="stylesheet" href="/static/css/flags.css">
 
 
     <script src="/static/lib/angular/angular.js"></script>
@@ -18,13 +17,12 @@
 
     <script src="/static/lib/jquery/jquery.min.js"></script>
     <script src="/static/lib/bootstrap/bootstrap.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.11.2/js/bootstrap-select.min.js"></script>
 </head>
 <body>
 <nav class="navbar navbar-default">
     <div class="container-fluid">
         <div class="navbar-header">
-            <a class="navbar-brand" href="#">
+            <a class="navbar-brand" href="/">
                 <img alt="Brand" style="width: 50px"
                      src="/static/img/LogoMakr-mini-inversed.png">
             </a>
@@ -32,7 +30,8 @@
         <div class="collapse navbar-collapse"
              id="bs-example-navbar-collapse-1">
             <ul class="nav navbar-nav navbar-right">
-                <li><a href="/quit">Exit</a></li>
+                <li ng-hide="loggedIn"><a href="/login">Sing In</a></li>
+                <li ng-show="loggedIn"><a href="/quit">Exit</a></li>
             </ul>
         </div>
     </div>

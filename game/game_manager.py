@@ -3,24 +3,24 @@ import game
 
 
 class GameRequest(object):
-    def __init__(self, user, move_time, language):
-        self.user = user
+    def __init__(self, user_id, username, move_time, language):
+        self.user_id = user_id
+        self.username = username
         self.move_time = move_time
         self.created_at = time.time()
         self.language = language
 
 
 request_time_expiration = 120
-test_r = GameRequest("rgg", 60, 'ua')
-game_requests = {"rgg": test_r}
+game_requests = {}
 move_time_cases = [120, 60, 45, 30, 15]
-supported_languages = ['ua', 'en']
+supported_languages = ['ua', 'en', 'ru']
 games = {}
 
 
-def create_game_request(user, move_time, language):
-    game_request = GameRequest(user, move_time, language)
-    game_requests[user] = game_request
+def create_game_request(user_id, username, move_time, language):
+    game_request = GameRequest(user_id, username, move_time, language)
+    game_requests[user_id] = game_request
     return game_request
 
 
@@ -45,12 +45,12 @@ def surrender(id):
     pass
 
 
-def apply_request(applier, user):
-    game_request = game_requests[user]
+def apply_request(applier, user_id):
+    game_request = game_requests[user_id]
     if not game_request:
-        raise Exception('No such game request with user with id %s!' % user)
-    start_game(game_requests[user].user, applier)
-    del game_requests[user]
+        raise Exception('No such game request with user with id %s!' % user_id)
+    start_game(game_requests[user_id].user_id, applier)
+    del game_requests[user_id]
 
 
 def game_configs():

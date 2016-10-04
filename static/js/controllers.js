@@ -7,9 +7,14 @@ function IndexController($scope, GameService) {
     $scope.myRequest = null;
     $scope.timeValues = [];
     $scope.languages = [];
+    $scope.loggedIn = false;
     $scope.getRequests = function () {
         GameService.getRequests().then(function (requests) {
             $scope.requests = requests;
+            requests.forEach(function (item, i, arr) {
+                if (item.my == true)
+                    $scope.myRequest = item;
+            });
         });
     };
 
@@ -17,6 +22,8 @@ function IndexController($scope, GameService) {
         GameService.gameConfigs().then(function (configs) {
             $scope.timeValues = configs[0];
             $scope.languages = configs[1];
+            $scope.language = $scope.languages[0];
+            $scope.moveTime = $scope.timeValues[0];
         });
     };
 
@@ -27,7 +34,7 @@ function IndexController($scope, GameService) {
         GameService.addRequest($scope.moveTime, $scope.language).then(function (request) {
             request.my = true;
             $scope.myRequest = request;
-            $scope.requests.push(request)
+            $scope.requests.splice(0, 0, request);
         });
     };
     $scope.cencelRequest = function () {
@@ -46,10 +53,11 @@ function IndexController($scope, GameService) {
         })
     };
     $scope.applyRequest = function (player) {
+        alert("dvg");
         GameService.applyRequest(player).then(function (result) {
             if (result) window.location = "/game";
         })
-    }
+    };
 }
 
 function GameController($scope, GameService) {
@@ -60,5 +68,24 @@ function GameController($scope, GameService) {
         [null, null, null, null, null],
         [null, null, null, null, null]
     ];
+}
 
+function AuthController($scope, AuthService) {
+    $scope.loginError = null;
+    $scope.login = function () {
+        AuthService.login().then(function (result) {
+            if (result) $scope.loggedIn = true;
+            else {
+                $scope.loggedIn = false;
+                $scope.loginError = result
+            }
+        });
+    };
+    $scope.logout = function () {
+        AuthService.logout().then(function (result) {
+            if (result) $scope.loggedIn = false;
+            else $scope.loggedIn = false;
+        });
+        $modalInstance.close();
+    };
 }

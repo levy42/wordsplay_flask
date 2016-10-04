@@ -1,6 +1,8 @@
 'use strict';
 
-var app = angular.module('App', ['AppServices'])
+/* App */
+
+var app = angular.module('App', ['AppServices', 'Auth'])
     .config(['$routeProvider', '$locationProvider',
         function ($routeProvider, $locationProvider) {
             $routeProvider
@@ -15,6 +17,14 @@ var app = angular.module('App', ['AppServices'])
                 .when('/game', {
                     templateUrl: 'static/partials/game.html',
                     controller: GameController
+                })
+                .when('/login', {
+                    templateUrl: 'static/partials/login.html',
+                    controller: AuthController
+                })
+                .when('/register', {
+                    templateUrl: 'static/partials/register.html',
+                    controller: AuthController
                 })
                 .otherwise({
                     redirectTo: '/'
